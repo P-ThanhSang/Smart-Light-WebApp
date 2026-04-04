@@ -1,0 +1,19 @@
+{
+  "name": "smart-light-webapp",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Smart Light PWA Dashboard - Monitor and control ESP32 Smart Light system",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
+    "gsap": "^3.12.0"
+  }
+}
