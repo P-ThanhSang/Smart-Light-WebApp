@@ -1,6 +1,6 @@
 // Smart Light PWA — Light Button Component
-import { subscribe, getState } from '../services/state.js';
-import { sendCommand } from '../services/supabase-service.js';
+import { subscribe, getState, setState } from '../services/state.js';
+import { sendCommand, lockFields } from '../services/supabase-service.js';
 
 export function createLightButton() {
   const wrapper = document.createElement('div');
@@ -47,10 +47,15 @@ export function createLightButton() {
   wrapper.appendChild(btn);
   wrapper.appendChild(statusLabel);
 
-  // Click handler — send command via Supabase (or mock)
+  // Click handler — toggle light with optimistic UI update
   btn.addEventListener('click', () => {
     const state = getState();
     if (state.mode === 'auto') return; // Disabled in auto mode
+    // Lock field to prevent realtime override
+    lockFields(['light']);
+    // Optimistic update: immediately reflect in UI
+    setState({ light: !state.light });
+    // Send command to Supabase/ESP32
     sendCommand('toggle_light');
   });
 

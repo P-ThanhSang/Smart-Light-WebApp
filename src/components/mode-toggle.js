@@ -1,6 +1,6 @@
 // Smart Light PWA — Mode Toggle Component
-import { subscribe, getState } from '../services/state.js';
-import { sendCommand } from '../services/supabase-service.js';
+import { subscribe, getState, setState } from '../services/state.js';
+import { sendCommand, lockFields } from '../services/supabase-service.js';
 
 export function createModeToggle() {
   const wrapper = document.createElement('div');
@@ -31,26 +31,32 @@ export function createModeToggle() {
   const label = wrapper.querySelector('#mode-label');
   const desc = wrapper.querySelector('#mode-desc');
 
-  // Click handler — send command via Supabase (or mock)
+  // Click handler — toggle mode with optimistic UI update
   toggle.addEventListener('click', () => {
     const state = getState();
     const newMode = state.mode === 'auto' ? 'manual' : 'auto';
+    // Lock field to prevent realtime override
+    lockFields(['mode']);
+    // Optimistic update: immediately reflect in UI
+    setState({ mode: newMode });
+    // Send command to Supabase/ESP32
     sendCommand('set_mode', { mode: newMode });
   });
 
   // Subscribe to state
+  // Auto = toggle ON (active, green text) | Manual = toggle OFF (inactive, red text)
   subscribe((state) => {
     const isAuto = state.mode === 'auto';
 
     if (isAuto) {
-      toggle.classList.remove('toggle-switch--active');
+      toggle.classList.add('toggle-switch--active');
       label.textContent = 'Chế độ: Tự động';
-      label.style.color = 'var(--text-primary)';
+      label.style.color = 'var(--accent-green)';
       desc.textContent = 'Hệ thống tự điều khiển đèn';
     } else {
-      toggle.classList.add('toggle-switch--active');
+      toggle.classList.remove('toggle-switch--active');
       label.textContent = 'Chế độ: Thủ công';
-      label.style.color = 'var(--accent-green)';
+      label.style.color = 'var(--accent-red)';
       desc.textContent = 'Bạn điều khiển đèn trực tiếp';
     }
   });

@@ -6,6 +6,32 @@ import { setState, getState, addLog as localAddLog } from './state.js';
 
 let realtimeChannel = null;
 
+// Optimistic lock: prevent realtime from overriding optimistic UI updates
+// Maps field names to timestamps when they were optimistically updated
+const optimisticLocks = new Map();
+const OPTIMISTIC_LOCK_DURATION = 3000; // 3 seconds grace period
+
+/**
+ * Lock fields from being overridden by realtime updates
+ */
+export function lockFields(fields) {
+  const now = Date.now();
+  fields.forEach(field => optimisticLocks.set(field, now));
+}
+
+/**
+ * Check if a field is currently locked (within grace period)
+ */
+function isFieldLocked(field) {
+  if (!optimisticLocks.has(field)) return false;
+  const lockedAt = optimisticLocks.get(field);
+  if (Date.now() - lockedAt > OPTIMISTIC_LOCK_DURATION) {
+    optimisticLocks.delete(field);
+    return false;
+  }
+  return true;
+}
+
 // ============================================================
 // 1. REALTIME — Subscribe to device_state changes
 // ============================================================
@@ -39,7 +65,7 @@ export async function startSupabaseService() {
         if (payload.new) {
           // Map Supabase row → local state
           const row = payload.new;
-          setState({
+          const update = {
             mode: row.mode,
             light: row.light,
             ldr: row.ldr,
@@ -62,7 +88,17 @@ export async function startSupabaseService() {
             ssid: row.ssid,
             gateway: row.gateway,
             connected: row.connected,
-          });
+          };
+
+          // Skip locked fields (optimistic UI updates in progress)
+          for (const key of Object.keys(update)) {
+            if (isFieldLocked(key)) {
+              console.log(`[Supabase] Skipping locked field: ${key}`);
+              delete update[key];
+            }
+          }
+
+          setState(update);
         }
       }
     )
