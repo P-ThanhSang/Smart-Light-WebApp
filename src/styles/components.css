@@ -614,3 +614,179 @@
 .wifi-signal__bar:nth-child(2) { height: 8px; }
 .wifi-signal__bar:nth-child(3) { height: 12px; }
 .wifi-signal__bar:nth-child(4) { height: 16px; }
+
+/* --- Power Button (Light ON/OFF) --- */
+.power-btn-ring {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(145deg, rgba(30, 40, 80, 0.6), rgba(10, 14, 39, 0.8));
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.power-btn {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+}
+
+.power-btn .power-icon {
+  width: 48px;
+  height: 48px;
+  transition: all 0.3s ease;
+}
+
+.power-btn__label {
+  font-family: var(--font-family);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+/* --- GREEN State: Light is OFF, press to turn ON --- */
+.power-btn-ring--off {
+  background: linear-gradient(145deg, rgba(0, 255, 136, 0.12), rgba(0, 80, 40, 0.2));
+  box-shadow:
+    0 0 25px rgba(0, 255, 136, 0.15),
+    0 0 50px rgba(0, 255, 136, 0.05),
+    inset 0 1px 0 rgba(0, 255, 136, 0.1);
+}
+
+.power-btn--off {
+  background: radial-gradient(circle at 40% 35%, #00cc6a, #00a556 50%, #008946 100%);
+  color: #fff;
+  box-shadow:
+    0 6px 20px rgba(0, 200, 100, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.power-btn--off:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 8px 30px rgba(0, 255, 136, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.power-btn--off:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 2px 10px rgba(0, 200, 100, 0.3),
+    inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.power-btn--off .power-icon {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+.power-btn--off .power-btn__label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- RED State: Light is ON, press to turn OFF --- */
+.power-btn-ring--on {
+  background: linear-gradient(145deg, rgba(255, 71, 87, 0.15), rgba(180, 30, 40, 0.2));
+  box-shadow:
+    0 0 30px rgba(255, 71, 87, 0.2),
+    0 0 60px rgba(255, 71, 87, 0.08),
+    inset 0 1px 0 rgba(255, 71, 87, 0.15);
+  animation: ring-pulse-red 2s ease-in-out infinite;
+}
+
+.power-btn--on {
+  background: radial-gradient(circle at 40% 35%, #ff6b7a, #e8434f 50%, #cc2936 100%);
+  color: #fff;
+  box-shadow:
+    0 6px 25px rgba(255, 71, 87, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.power-btn--on:hover {
+  transform: scale(1.04);
+  box-shadow:
+    0 8px 35px rgba(255, 71, 87, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.power-btn--on:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 2px 10px rgba(255, 71, 87, 0.3),
+    inset 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.power-btn--on .power-icon {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.power-btn--on .power-btn__label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- Disabled State (Auto Mode) --- */
+.power-btn-ring--disabled {
+  background: linear-gradient(145deg, rgba(30, 40, 80, 0.4), rgba(10, 14, 39, 0.6));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.power-btn--disabled {
+  background: radial-gradient(circle at 40% 35%, #2a3050, #1e2445 50%, #161b35 100%);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.03),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.power-btn--disabled:hover {
+  transform: none;
+}
+
+.power-btn--disabled .power-icon {
+  filter: none;
+}
+
+.power-btn--disabled .power-btn__label {
+  color: var(--text-muted);
+}
+
+/* --- Pulse Animation for ON state ring --- */
+@keyframes ring-pulse-red {
+  0%, 100% {
+    box-shadow:
+      0 0 30px rgba(255, 71, 87, 0.2),
+      0 0 60px rgba(255, 71, 87, 0.08),
+      inset 0 1px 0 rgba(255, 71, 87, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(255, 71, 87, 0.3),
+      0 0 80px rgba(255, 71, 87, 0.12),
+      inset 0 1px 0 rgba(255, 71, 87, 0.2);
+  }
+}

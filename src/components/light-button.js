@@ -1,6 +1,14 @@
-// Smart Light PWA — Light Button Component
+// Smart Light PWA — Light Button Component (Power Button Design)
 import { subscribe, getState, setState } from '../services/state.js';
 import { sendCommand, lockFields } from '../services/supabase-service.js';
+
+// Power icon SVG path
+const POWER_ICON_SVG = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="power-icon">
+    <line x1="12" y1="2" x2="12" y2="12"></line>
+    <path d="M16.24 7.76a6 6 0 0 1 .5 8.49A6 6 0 0 1 12 18a6 6 0 0 1-4.74-1.75 6 6 0 0 1 .5-8.49"></path>
+  </svg>
+`;
 
 export function createLightButton() {
   const wrapper = document.createElement('div');
@@ -13,38 +21,31 @@ export function createLightButton() {
     gap: var(--space-md);
   `;
 
-  const btn = document.createElement('button');
-  btn.className = 'light-button';
-  btn.id = 'light-button';
-  btn.style.cssText = `
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    border: 2px solid var(--border-color);
-    background: var(--bg-card);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    transition: all 0.3s ease;
-    -webkit-tap-highlight-color: transparent;
-    position: relative;
-    overflow: hidden;
-  `;
+  // Outer ring (glow container)
+  const ring = document.createElement('div');
+  ring.className = 'power-btn-ring';
+  ring.id = 'power-btn-ring';
 
+  // Main button
+  const btn = document.createElement('button');
+  btn.className = 'power-btn';
+  btn.id = 'light-button';
+
+  ring.appendChild(btn);
+
+  // Status label
   const statusLabel = document.createElement('span');
   statusLabel.className = 'light-button__status';
   statusLabel.id = 'light-status';
   statusLabel.style.cssText = `
     font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-semibold);
     color: var(--text-muted);
-    transition: color var(--transition-base);
+    transition: color 0.3s ease;
+    letter-spacing: 0.02em;
   `;
 
-  wrapper.appendChild(btn);
+  wrapper.appendChild(ring);
   wrapper.appendChild(statusLabel);
 
   // Click handler — toggle light with optimistic UI update
@@ -64,38 +65,34 @@ export function createLightButton() {
     const isOn = state.light;
     const isAuto = state.mode === 'auto';
 
-    // Icon
+    // Update button content
     btn.innerHTML = `
-      <span style="font-size: 3rem; filter: ${isOn ? 'drop-shadow(0 0 12px rgba(255, 200, 0, 0.6))' : 'none'}; transition: filter 0.3s ease;">
-        ${isOn ? '💡' : '🔌'}
-      </span>
-      <span style="font-size: var(--font-size-xs); color: ${isOn ? 'var(--accent-amber)' : 'var(--text-muted)'}; font-weight: var(--font-weight-semibold);">
-        ${isOn ? 'ON' : 'OFF'}
-      </span>
+      ${POWER_ICON_SVG}
+      <span class="power-btn__label">${isOn ? 'TẮT' : 'BẬT'}</span>
     `;
 
-    // Button styles based on state
-    if (isOn) {
-      btn.style.borderColor = 'var(--accent-amber)';
-      btn.style.background = 'rgba(255, 184, 0, 0.08)';
-      btn.style.boxShadow = '0 0 30px rgba(255, 184, 0, 0.2), 0 0 60px rgba(255, 184, 0, 0.1)';
-    } else {
-      btn.style.borderColor = 'var(--border-color)';
-      btn.style.background = 'var(--bg-card)';
-      btn.style.boxShadow = 'var(--shadow-md)';
-    }
+    // Remove previous state classes
+    ring.classList.remove('power-btn-ring--on', 'power-btn-ring--off', 'power-btn-ring--disabled');
+    btn.classList.remove('power-btn--on', 'power-btn--off', 'power-btn--disabled');
 
-    // Disabled state in auto mode
     if (isAuto) {
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
+      // Disabled state in auto mode
+      ring.classList.add('power-btn-ring--disabled');
+      btn.classList.add('power-btn--disabled');
       statusLabel.textContent = 'Chế độ tự động';
       statusLabel.style.color = 'var(--text-muted)';
+    } else if (isOn) {
+      // Light is ON → show RED button (press to turn OFF)
+      ring.classList.add('power-btn-ring--on');
+      btn.classList.add('power-btn--on');
+      statusLabel.textContent = 'Nhấn để tắt đèn';
+      statusLabel.style.color = 'var(--accent-red)';
     } else {
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-      statusLabel.textContent = isOn ? 'Nhấn để tắt đèn' : 'Nhấn để bật đèn';
-      statusLabel.style.color = isOn ? 'var(--accent-amber)' : 'var(--text-secondary)';
+      // Light is OFF → show GREEN button (press to turn ON)
+      ring.classList.add('power-btn-ring--off');
+      btn.classList.add('power-btn--off');
+      statusLabel.textContent = 'Nhấn để bật đèn';
+      statusLabel.style.color = 'var(--accent-green)';
     }
   });
 
