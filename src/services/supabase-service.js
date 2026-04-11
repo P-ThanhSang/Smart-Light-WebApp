@@ -298,6 +298,32 @@ export async function sendCommand(action, value = {}) {
     }
 
     console.log(`[Supabase] Command sent: ${action}`, value);
+
+    // Also update device_state directly so changes persist across page reloads
+    // (ESP32 will eventually sync, but this prevents stale reads on page navigation)
+    const stateUpdate = {};
+    if (action === 'set_mode' && value.mode) {
+      stateUpdate.mode = value.mode;
+    } else if (action === 'toggle_light') {
+      stateUpdate.light = state.light;
+    } else if (action === 'set_ldr_threshold' && value.value != null) {
+      stateUpdate.ldr_threshold = value.value;
+    } else if (action === 'set_radar_timeout' && value.value != null) {
+      stateUpdate.radar_timeout = value.value;
+    }
+
+    if (Object.keys(stateUpdate).length > 0) {
+      const { error: updateErr } = await supabase
+        .from('device_state')
+        .update(stateUpdate)
+        .eq('device_id', CONFIG.DEVICE_ID);
+
+      if (updateErr) {
+        console.error('[Supabase] device_state sync error:', updateErr);
+      } else {
+        console.log('[Supabase] device_state synced:', stateUpdate);
+      }
+    }
   } catch (err) {
     console.error('[Supabase] Send command failed:', err);
   }

@@ -88,6 +88,10 @@ function initUser(app) {
 function initAdmin(app) {
   currentSection = 'admin';
 
+  // Always require PIN on fresh page load into admin
+  // Clear the session auth so PIN gate always shows when entering admin
+  sessionStorage.removeItem('smart_light_admin_auth');
+
   // PIN Gate
   const pinGate = createPinGate(() => {
     buildAdminLayout(app);
@@ -148,10 +152,6 @@ function navigateTo(pageId) {
     pageContainer.innerHTML = '';
     const page = pages[pageId]();
     pageContainer.appendChild(page);
-
-    // Force state refresh so new subscribers render immediately
-    const currentState = getState();
-    setState({ _tick: Date.now() });
   }
 }
 
