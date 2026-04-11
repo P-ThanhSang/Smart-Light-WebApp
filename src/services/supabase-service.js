@@ -404,17 +404,30 @@ export async function addScheduleToSupabase(schedule) {
   if (state.schedules.length >= CONFIG.MAX_SCHEDULES) return false;
 
   try {
-    const { error } = await supabase.from('schedules').insert({
+    const { data, error } = await supabase.from('schedules').insert({
       device_id: CONFIG.DEVICE_ID,
       time_on: schedule.timeOn,
       time_off: schedule.timeOff,
       days: schedule.days,
       enabled: true,
-    });
+    }).select().single();
 
     if (error) {
       console.error('[Supabase] Add schedule error:', error);
       return false;
+    }
+
+    // Optimistic: add the new schedule to local state immediately
+    if (data) {
+      const newSchedule = {
+        id: data.id,
+        timeOn: data.time_on,
+        timeOff: data.time_off,
+        days: data.days,
+        enabled: data.enabled,
+      };
+      const currentState = getState();
+      setState({ schedules: [...currentState.schedules, newSchedule] });
     }
 
     await addLogToSupabase('system', `Đã tạo lịch mới: ${schedule.timeOn} → ${schedule.timeOff}`);
