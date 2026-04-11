@@ -47,34 +47,81 @@ export function createSchedulePage() {
   });
   page.appendChild(fab);
 
-  // --- Subscribe to state (only re-render when schedules change) ---
-  let lastSchedulesJSON = '';
+  // --- Empty state element ---
+  const emptyState = document.createElement('div');
+  emptyState.className = 'empty-state';
+  emptyState.style.display = 'none';
+  emptyState.innerHTML = `
+    <div class="empty-state__icon">📅</div>
+    <div class="empty-state__text">Chưa có lịch hẹn giờ nào</div>
+    <div class="empty-state__text" style="font-size: var(--font-size-xs);">Nhấn nút + để tạo mới</div>
+  `;
+  listContainer.appendChild(emptyState);
 
-  function renderSchedules(schedules) {
-    listContainer.innerHTML = '';
+  // --- Track rendered cards by ID ---
+  const renderedCards = new Map(); // schedule.id → DOM element
 
+  /**
+   * Smart update: only add/remove/update cards that changed.
+   * Avoids full DOM rebuild which causes flicker.
+   */
+  function updateSchedules(schedules) {
     if (schedules.length === 0) {
-      listContainer.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state__icon">📅</div>
-          <div class="empty-state__text">Chưa có lịch hẹn giờ nào</div>
-          <div class="empty-state__text" style="font-size: var(--font-size-xs);">Nhấn nút + để tạo mới</div>
-        </div>
-      `;
+      // Remove all cards
+      renderedCards.forEach((el) => el.remove());
+      renderedCards.clear();
+      emptyState.style.display = '';
       return;
     }
 
+    emptyState.style.display = 'none';
+
+    const currentIds = new Set(schedules.map((s) => s.id));
+
+    // Remove cards that no longer exist
+    for (const [id, el] of renderedCards) {
+      if (!currentIds.has(id)) {
+        el.remove();
+        renderedCards.delete(id);
+      }
+    }
+
+    // Add new cards and update existing ones
     schedules.forEach((schedule) => {
-      listContainer.appendChild(createScheduleCard(schedule));
+      const existingCard = renderedCards.get(schedule.id);
+
+      if (existingCard) {
+        // Update in-place: only toggle state and opacity (no DOM rebuild)
+        existingCard.style.opacity = schedule.enabled ? '1' : '0.5';
+
+        const toggle = existingCard.querySelector(`#schedule-toggle-${schedule.id}`);
+        if (toggle) {
+          const knob = toggle.querySelector('.toggle-switch__knob');
+          if (schedule.enabled) {
+            toggle.classList.add('toggle-switch--active');
+            if (knob) knob.style.transform = 'translateX(22px)';
+          } else {
+            toggle.classList.remove('toggle-switch--active');
+            if (knob) knob.style.transform = '';
+          }
+        }
+      } else {
+        // New schedule — create card with animation
+        const card = createScheduleCard(schedule);
+        listContainer.insertBefore(card, emptyState);
+        renderedCards.set(schedule.id, card);
+      }
     });
   }
 
+  // --- Subscribe to state (only re-render when schedules change) ---
+  let lastSchedulesJSON = '';
+
   subscribe((state) => {
-    // Only re-render schedule list when schedules actually change
     const currentJSON = JSON.stringify(state.schedules);
     if (currentJSON !== lastSchedulesJSON) {
       lastSchedulesJSON = currentJSON;
-      renderSchedules(state.schedules);
+      updateSchedules(state.schedules);
     }
 
     // Counter is cheap to update

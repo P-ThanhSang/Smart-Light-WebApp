@@ -312,6 +312,7 @@
   flex-direction: column;
   gap: var(--space-sm);
   padding: var(--space-md);
+  transition: opacity 0.3s ease;
 }
 
 .schedule-card__header {
