@@ -1,6 +1,6 @@
 // Smart Light PWA — Mode Toggle Component
 import { subscribe, getState, setState } from '../services/state.js';
-import { sendCommand, lockFields, addLogToSupabase } from '../services/supabase-service.js';
+import { sendCommand, lockField, addLogToSupabase } from '../services/supabase-service.js';
 
 export function createModeToggle() {
   const wrapper = document.createElement('div');
@@ -35,8 +35,8 @@ export function createModeToggle() {
   toggle.addEventListener('click', () => {
     const state = getState();
     const newMode = state.mode === 'auto' ? 'manual' : 'auto';
-    // Lock field to prevent realtime override
-    lockFields(['mode']);
+    // Lock field with expected value — realtime won't override until confirmed
+    lockField('mode', newMode);
     // Optimistic update: immediately reflect in UI
     setState({ mode: newMode });
     // Send command to Supabase/ESP32

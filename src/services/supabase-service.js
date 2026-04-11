@@ -7,28 +7,50 @@ import { setState, getState, addLog as localAddLog } from './state.js';
 let realtimeChannel = null;
 
 // Optimistic lock: prevent realtime from overriding optimistic UI updates
-// Maps field names to timestamps when they were optimistically updated
+// Maps field names to { expectedValue, timestamp } — unlocks only when
+// the server confirms the expected value OR the safety timeout expires.
 const optimisticLocks = new Map();
-const OPTIMISTIC_LOCK_DURATION = 3000; // 3 seconds grace period
+const OPTIMISTIC_LOCK_TIMEOUT = 15000; // 15s safety timeout (ESP32 poll can be slow)
 
 /**
- * Lock fields from being overridden by realtime updates
+ * Lock a single field with the value we expect the server to eventually confirm.
+ * @param {string} field - State field name (e.g. 'light', 'mode')
+ * @param {*} expectedValue - The value we optimistically set
  */
-export function lockFields(fields) {
-  const now = Date.now();
-  fields.forEach(field => optimisticLocks.set(field, now));
+export function lockField(field, expectedValue) {
+  optimisticLocks.set(field, { expectedValue, timestamp: Date.now() });
+  console.log(`[Lock] Field "${field}" locked → expecting:`, expectedValue);
 }
 
 /**
- * Check if a field is currently locked (within grace period)
+ * Check whether an incoming realtime value for a field should be ignored.
+ * Returns true if the field is locked and the incoming value does NOT
+ * match the expected value (i.e. the server hasn't confirmed yet).
+ *
+ * If the incoming value MATCHES the expected value → unlock & accept (confirmed!).
+ * If the safety timeout has expired → unlock & accept (give up, revert to server).
  */
-function isFieldLocked(field) {
+function shouldSkipRealtimeUpdate(field, incomingValue) {
   if (!optimisticLocks.has(field)) return false;
-  const lockedAt = optimisticLocks.get(field);
-  if (Date.now() - lockedAt > OPTIMISTIC_LOCK_DURATION) {
+
+  const lock = optimisticLocks.get(field);
+
+  // Case 1: Server confirmed the expected value → unlock, accept it
+  if (incomingValue === lock.expectedValue) {
     optimisticLocks.delete(field);
-    return false;
+    console.log(`[Lock] Field "${field}" confirmed ✓ (value: ${incomingValue})`);
+    return false; // Don't skip — this is the confirmation
   }
+
+  // Case 2: Safety timeout expired → give up, unlock, accept whatever the server says
+  if (Date.now() - lock.timestamp > OPTIMISTIC_LOCK_TIMEOUT) {
+    optimisticLocks.delete(field);
+    console.warn(`[Lock] Field "${field}" timed out! Accepting server value:`, incomingValue);
+    return false; // Accept server value (revert optimistic)
+  }
+
+  // Case 3: Still locked & value doesn't match → skip this update
+  console.log(`[Lock] Field "${field}" locked, skipping server value:`, incomingValue);
   return true;
 }
 
@@ -90,10 +112,9 @@ export async function startSupabaseService() {
             connected: row.connected,
           };
 
-          // Skip locked fields (optimistic UI updates in progress)
+          // Skip fields with active optimistic locks (value-aware)
           for (const key of Object.keys(update)) {
-            if (isFieldLocked(key)) {
-              console.log(`[Supabase] Skipping locked field: ${key}`);
+            if (shouldSkipRealtimeUpdate(key, update[key])) {
               delete update[key];
             }
           }
@@ -299,14 +320,14 @@ export async function sendCommand(action, value = {}) {
 
     console.log(`[Supabase] Command sent: ${action}`, value);
 
-    // Also update device_state directly so changes persist across page reloads
-    // (ESP32 will eventually sync, but this prevents stale reads on page navigation)
+    // Update device_state directly for SETTINGS only (threshold/timeout).
+    // For toggle_light and set_mode, we DO NOT write directly — the ESP32
+    // is the single source of truth. The optimistic lock protects the UI
+    // until ESP32 confirms via realtime. Writing directly would trigger
+    // a premature realtime "echo" that unlocks the field too early,
+    // allowing ESP32's periodic state sync to flip the UI back.
     const stateUpdate = {};
-    if (action === 'set_mode' && value.mode) {
-      stateUpdate.mode = value.mode;
-    } else if (action === 'toggle_light') {
-      stateUpdate.light = state.light;
-    } else if (action === 'set_ldr_threshold' && value.value != null) {
+    if (action === 'set_ldr_threshold' && value.value != null) {
       stateUpdate.ldr_threshold = value.value;
     } else if (action === 'set_radar_timeout' && value.value != null) {
       stateUpdate.radar_timeout = value.value;

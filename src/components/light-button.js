@@ -1,6 +1,6 @@
 // Smart Light PWA — Light Button Component (Power Button Design)
 import { subscribe, getState, setState } from '../services/state.js';
-import { sendCommand, lockFields, addLogToSupabase } from '../services/supabase-service.js';
+import { sendCommand, lockField, addLogToSupabase } from '../services/supabase-service.js';
 
 // Power icon SVG path
 const POWER_ICON_SVG = `
@@ -53,12 +53,12 @@ export function createLightButton() {
     const state = getState();
     if (state.mode === 'auto') return; // Disabled in auto mode
     const newLight = !state.light;
-    // Lock field to prevent realtime override
-    lockFields(['light']);
+    // Lock field with expected value — realtime won't override until confirmed
+    lockField('light', newLight);
     // Optimistic update: immediately reflect in UI
     setState({ light: newLight });
-    // Send command to Supabase/ESP32
-    sendCommand('toggle_light');
+    // Send command to Supabase/ESP32 with explicit desired state
+    sendCommand('toggle_light', { light: newLight });
     // Log the action so admin logs page receives it in real-time
     addLogToSupabase('light', newLight ? 'Đèn đã BẬT (thủ công)' : 'Đèn đã TẮT (thủ công)');
   });
