@@ -111,10 +111,20 @@ export async function startSupabaseService() {
         filter: `device_id=eq.${CONFIG.DEVICE_ID}`,
       },
       (payload) => {
-        // New log from ESP32 → add to local state
+        // New log from Supabase → add to local state (skip if already present from optimistic update)
         if (payload.new) {
           const row = payload.new;
           const state = getState();
+          // Skip if this log was already added by optimistic local update
+          // Check by matching message + type within a 5-second window
+          const recentDuplicate = state.logs.some(
+            (l) => l.message === row.message && l.type === row.type &&
+              l.date && (new Date(row.created_at).getTime() - l.date.getTime()) < 5000
+          );
+          if (recentDuplicate) {
+            console.log('[Supabase] Skipping duplicate log (already added locally)');
+            return;
+          }
           const newLog = {
             id: row.id,
             type: row.type,
@@ -299,6 +309,7 @@ export async function sendCommand(action, value = {}) {
 
 /**
  * Add a log entry to Supabase
+ * Also adds to local state immediately for instant UI feedback
  */
 export async function addLogToSupabase(type, message) {
   if (CONFIG.USE_MOCK) {
@@ -306,6 +317,9 @@ export async function addLogToSupabase(type, message) {
     localAddLog(type, message);
     return;
   }
+
+  // Optimistic: add to local state immediately so UI updates instantly
+  localAddLog(type, message);
 
   try {
     await supabase.from('logs').insert({
@@ -421,11 +435,21 @@ export async function removeScheduleFromSupabase(id) {
     return;
   }
 
+  // Optimistic: remove from local state immediately so UI updates instantly
+  const state = getState();
+  setState({ schedules: state.schedules.filter((s) => s.id !== id) });
+
   try {
     await supabase.from('schedules').delete().eq('id', id);
-    await addLogToSupabase('system', 'Đã xóa một lịch hẹn giờ');
+    addLogToSupabase('system', 'Đã xóa một lịch hẹn giờ');
   } catch (err) {
     console.error('[Supabase] Remove schedule error:', err);
+    // Rollback on failure: re-add the schedule
+    const current = getState();
+    const removed = state.schedules.find((s) => s.id === id);
+    if (removed) {
+      setState({ schedules: [...current.schedules, removed] });
+    }
   }
 }
 
@@ -443,13 +467,29 @@ export async function toggleScheduleInSupabase(id) {
   const schedule = state.schedules.find((s) => s.id === id);
   if (!schedule) return;
 
+  const newEnabled = !schedule.enabled;
+
+  // Optimistic: toggle in local state immediately so UI updates instantly
+  setState({
+    schedules: state.schedules.map((s) =>
+      s.id === id ? { ...s, enabled: newEnabled } : s
+    ),
+  });
+
   try {
     await supabase
       .from('schedules')
-      .update({ enabled: !schedule.enabled })
+      .update({ enabled: newEnabled })
       .eq('id', id);
   } catch (err) {
     console.error('[Supabase] Toggle schedule error:', err);
+    // Rollback on failure
+    const current = getState();
+    setState({
+      schedules: current.schedules.map((s) =>
+        s.id === id ? { ...s, enabled: !newEnabled } : s
+      ),
+    });
   }
 }
 

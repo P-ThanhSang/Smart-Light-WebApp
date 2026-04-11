@@ -72,12 +72,13 @@ export function createLogsPage() {
     });
   }
 
-  // --- Subscribe to state (only re-render when logs change) ---
-  let lastLogCount = -1;
+  // --- Subscribe to state (re-render when logs change) ---
+  let lastLogs = null;
 
   subscribe((state) => {
-    if (state.logs.length !== lastLogCount) {
-      lastLogCount = state.logs.length;
+    // Re-render if logs reference changed (any addition, removal, or replacement)
+    if (state.logs !== lastLogs) {
+      lastLogs = state.logs;
       logList.updateLogs(state.logs);
       countEl.textContent = `${state.logs.length} entries`;
     }

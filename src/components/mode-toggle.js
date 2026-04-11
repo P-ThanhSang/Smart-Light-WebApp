@@ -1,6 +1,6 @@
 // Smart Light PWA — Mode Toggle Component
 import { subscribe, getState, setState } from '../services/state.js';
-import { sendCommand, lockFields } from '../services/supabase-service.js';
+import { sendCommand, lockFields, addLogToSupabase } from '../services/supabase-service.js';
 
 export function createModeToggle() {
   const wrapper = document.createElement('div');
@@ -41,6 +41,8 @@ export function createModeToggle() {
     setState({ mode: newMode });
     // Send command to Supabase/ESP32
     sendCommand('set_mode', { mode: newMode });
+    // Log the action so admin logs page receives it in real-time
+    addLogToSupabase('mode', `Chế độ: ${newMode === 'auto' ? 'Tự động' : 'Thủ công'}`);
   });
 
   // Subscribe to state
