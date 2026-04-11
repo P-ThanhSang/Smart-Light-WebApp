@@ -4,7 +4,7 @@ import './styles/animations.css';
 import './styles/components.css';
 
 import { CONFIG } from './config.js';
-import { getState, setState } from './services/state.js';
+
 import { startMockService } from './services/mock-service.js';
 import { startSupabaseService } from './services/supabase-service.js';
 import { createHeader } from './components/header.js';
@@ -40,18 +40,41 @@ const ADMIN_PAGES = {
 };
 
 // --- Initialize App ---
-function init() {
+async function init() {
   console.log('🔆 Smart Light PWA initialized');
 
   const app = document.getElementById('app');
   app.innerHTML = '';
 
-  // Start data service based on config
-  if (CONFIG.USE_MOCK) {
-    startMockService();
-  } else {
-    startSupabaseService();
+  // Show loading splash while fetching device state
+  const splash = document.createElement('div');
+  splash.id = 'loading-splash';
+  splash.style.cssText = `
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: var(--bg-primary, #0a0e27);
+    z-index: 9999; gap: 16px;
+  `;
+  splash.innerHTML = `
+    <div style="font-size: 2.5rem; animation: pulse-glow 1.5s ease-in-out infinite;">💡</div>
+    <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 0.05em;">Đang kết nối...</div>
+  `;
+  app.appendChild(splash);
+
+  // Start data service and WAIT for initial data before rendering UI
+  try {
+    if (CONFIG.USE_MOCK) {
+      startMockService();
+    } else {
+      await startSupabaseService();
+    }
+  } catch (err) {
+    console.error('[Init] Service start error:', err);
   }
+
+  // Remove splash
+  splash.remove();
 
   // Determine section from URL path
   const path = window.location.pathname;
@@ -167,7 +190,7 @@ let initialized = false;
 function boot() {
   if (initialized) return;
   initialized = true;
-  init();
+  init(); // async — splash handles the wait
 }
 
 document.addEventListener('DOMContentLoaded', boot);
