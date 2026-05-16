@@ -1,10 +1,9 @@
 // Smart Light PWA — LDR Gauge Component (SVG Circular Gauge)
-// Demo animation when ESP32 not sending data, real data when active
+// Demo animation only on first load, then always show real data
 import { subscribe, getState } from '../services/state.js';
 
 const MAX_LDR = 4095;
 const DEMO_HALF_CYCLE_MS = 5000;
-const STALE_TIMEOUT_MS = 3000; // No data for 3s → show demo
 
 // Color palette: neon/fluorescent — bright and vibrant
 const BAND_COLORS = [
@@ -101,13 +100,13 @@ export function createLdrGauge() {
     }
   }
 
-  // --- Demo animation ---
+  // --- Demo animation (only before first real data) ---
   let demoRafId = null;
   let demoStartTime = null;
-  let hardwareActive = false;
+  let receivedRealData = false;
 
   function demoTick(timestamp) {
-    if (hardwareActive) { demoRafId = null; return; }
+    if (receivedRealData) { demoRafId = null; return; }
     if (!demoStartTime) demoStartTime = timestamp;
 
     const elapsed = (timestamp - demoStartTime) % (DEMO_HALF_CYCLE_MS * 2);
@@ -124,7 +123,6 @@ export function createLdrGauge() {
 
   function startDemo() {
     if (demoRafId) return;
-    hardwareActive = false;
     demoStartTime = null;
     demoRafId = requestAnimationFrame(demoTick);
   }
@@ -136,29 +134,17 @@ export function createLdrGauge() {
   // Start demo on init
   startDemo();
 
-  // --- Stale check: if no sensor update received for STALE_TIMEOUT_MS → restart demo ---
-  setInterval(() => {
-    if (!hardwareActive) return;
-    const state = getState();
-    const lastUpdate = state._lastSensorUpdate || 0;
-    if (Date.now() - lastUpdate > STALE_TIMEOUT_MS) {
-      hardwareActive = false;
-      startDemo();
-    }
-  }, 1000);
-
-  // --- Subscribe: detect fresh hardware data via _lastSensorUpdate timestamp ---
+  // --- Subscribe to state ---
+  // Once we get the first _lastSensorUpdate from Supabase realtime,
+  // stop demo permanently and always show real values after that.
   subscribe((state) => {
-    const lastUpdate = state._lastSensorUpdate || 0;
-    const isFresh = (Date.now() - lastUpdate) < STALE_TIMEOUT_MS;
-
-    if (isFresh && !hardwareActive) {
-      // ESP32 is actively sending data → stop demo
-      hardwareActive = true;
+    if (!receivedRealData && state._lastSensorUpdate) {
+      // First real data from hardware — stop demo forever
+      receivedRealData = true;
       stopDemo();
     }
 
-    if (hardwareActive) {
+    if (receivedRealData) {
       renderGauge(state.ldr, false);
     }
   });
