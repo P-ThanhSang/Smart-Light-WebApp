@@ -4,7 +4,7 @@ import { subscribe, getState } from '../services/state.js';
 
 const MAX_LDR = 4095;
 const DEMO_HALF_CYCLE_MS = 5000;
-const STALE_TIMEOUT_MS = 5000; // If LDR unchanged for 5s → ESP32 offline
+const STALE_TIMEOUT_MS = 6000; // No data for 6s → show demo
 
 // Color palette: neon/fluorescent — bright and vibrant
 const BAND_COLORS = [
@@ -105,9 +105,6 @@ export function createLdrGauge() {
   let demoRafId = null;
   let demoStartTime = null;
   let hardwareActive = false;
-  let lastLdrValue = null;
-  let lastLdrChangeTime = 0;
-  let ldrChangeCount = 0; // Need 3+ changes to confirm ESP32 is live
 
   function demoTick(timestamp) {
     if (hardwareActive) { demoRafId = null; return; }
@@ -127,6 +124,7 @@ export function createLdrGauge() {
 
   function startDemo() {
     if (demoRafId) return;
+    hardwareActive = false;
     demoStartTime = null;
     demoRafId = requestAnimationFrame(demoTick);
   }
@@ -135,35 +133,31 @@ export function createLdrGauge() {
     if (demoRafId) { cancelAnimationFrame(demoRafId); demoRafId = null; }
   }
 
-  // Start demo immediately
+  // Start demo on init
   startDemo();
 
-  // --- Subscribe: detect real hardware data ---
-  // Page load sequence: initialState(ldr=2048) → DB fetch(ldr=2442) → that's 2 changes
-  // ESP32 live: sends new readings every ~2s → 3rd+ change = confirmed active
-  subscribe((state) => {
-    const now = Date.now();
-
-    if (state.ldr !== lastLdrValue) {
-      lastLdrValue = state.ldr;
-      lastLdrChangeTime = now;
-      ldrChangeCount++;
-
-      // Require 3+ distinct changes to confirm ESP32 is actively sending
-      if (ldrChangeCount >= 3 && !hardwareActive) {
-        hardwareActive = true;
-        stopDemo();
-      }
-    }
-
-    // If hardware was active but LDR stopped changing → ESP32 went offline
-    if (hardwareActive && (now - lastLdrChangeTime > STALE_TIMEOUT_MS)) {
+  // --- Stale check: if no sensor update received for STALE_TIMEOUT_MS → restart demo ---
+  setInterval(() => {
+    if (!hardwareActive) return;
+    const state = getState();
+    const lastUpdate = state._lastSensorUpdate || 0;
+    if (Date.now() - lastUpdate > STALE_TIMEOUT_MS) {
       hardwareActive = false;
-      ldrChangeCount = 0;
       startDemo();
     }
+  }, 2000);
 
-    // Show real data when hardware is active
+  // --- Subscribe: detect fresh hardware data via _lastSensorUpdate timestamp ---
+  subscribe((state) => {
+    const lastUpdate = state._lastSensorUpdate || 0;
+    const isFresh = (Date.now() - lastUpdate) < STALE_TIMEOUT_MS;
+
+    if (isFresh && !hardwareActive) {
+      // ESP32 is actively sending data → stop demo
+      hardwareActive = true;
+      stopDemo();
+    }
+
     if (hardwareActive) {
       renderGauge(state.ldr, false);
     }

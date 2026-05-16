@@ -117,6 +117,9 @@ export async function startSupabaseService() {
             }
           }
 
+          // Mark when we last received sensor data from hardware
+          update._lastSensorUpdate = Date.now();
+
           setState(update);
         }
       }
