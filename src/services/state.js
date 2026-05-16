@@ -7,7 +7,7 @@ const initialState = {
   light: false,           // true = ON, false = OFF
   ldr: 2048,              // Raw LDR value (0-4095)
   ldr_percent: 50,        // LDR percentage (0-100)
-  radar: false,           // true = motion detected
+
 
   // --- Time ---
   hour: 0,
@@ -16,7 +16,7 @@ const initialState = {
 
   // --- Settings ---
   ldr_threshold: 1000,
-  radar_timeout: 10,
+
 
   // --- Device Info ---
   uptime: 0,
@@ -41,7 +41,7 @@ const initialState = {
   analytics: {
     ldr_history: [],       // { time, value }
     light_usage: [],       // { hour, duration }
-    radar_events: [],      // { time, detected }
+
   },
 
   // --- Admin: Schedules ---
@@ -100,7 +100,7 @@ export function addLog(type, message) {
   const now = new Date();
   const log = {
     id: Date.now() + Math.random(),
-    type,       // 'light' | 'radar' | 'mode' | 'system'
+    type,       // 'light' | 'mode' | 'system'
     message,
     timestamp: now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     date: now,
@@ -113,7 +113,7 @@ export function addLog(type, message) {
 /**
  * Add analytics data point
  */
-export function addAnalyticsPoint(ldr, lightOn, radarDetected) {
+export function addAnalyticsPoint(ldr, lightOn) {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const hour = now.getHours();
@@ -124,12 +124,6 @@ export function addAnalyticsPoint(ldr, lightOn, radarDetected) {
   analytics.ldr_history = [
     ...analytics.ldr_history,
     { time: timeStr, value: ldr, timestamp: Date.now() },
-  ].slice(-CONFIG.MAX_ANALYTICS_POINTS);
-
-  // Radar events
-  analytics.radar_events = [
-    ...analytics.radar_events,
-    { time: timeStr, detected: radarDetected, timestamp: Date.now() },
   ].slice(-CONFIG.MAX_ANALYTICS_POINTS);
 
   // Light usage per hour

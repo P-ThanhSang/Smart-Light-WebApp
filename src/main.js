@@ -53,12 +53,12 @@ async function init() {
     position: fixed; inset: 0;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    background: var(--bg-primary, #0a0e27);
+    background: var(--bg-primary, #f0f2f8);
     z-index: 9999; gap: 16px;
   `;
   splash.innerHTML = `
     <div style="font-size: 2.5rem; animation: pulse-glow 1.5s ease-in-out infinite;">💡</div>
-    <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 0.05em;">Đang kết nối...</div>
+    <div style="color: rgba(45,49,66,0.6); font-size: 0.85rem; letter-spacing: 0.05em;">Đang kết nối...</div>
   `;
   app.appendChild(splash);
 

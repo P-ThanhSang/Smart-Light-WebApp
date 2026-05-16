@@ -3,7 +3,7 @@ import { subscribe, getState } from '../services/state.js';
 import { startSupabaseService, stopSupabaseService } from '../services/supabase-service.js';
 import { startMockService, stopMockService } from '../services/mock-service.js';
 import { CONFIG } from '../config.js';
-import { createSliderControl } from '../components/slider-control.js';
+import { createThresholdPicker } from '../components/threshold-picker.js';
 import { createDeviceInfo } from '../components/device-info.js';
 
 export function createSettingsPage() {
@@ -21,34 +21,10 @@ export function createSettingsPage() {
   thresholdTitle.textContent = 'Cấu hình cảm biến';
   thresholdSection.appendChild(thresholdTitle);
 
-  // LDR Threshold Slider
-  thresholdSection.appendChild(createSliderControl({
-    id: 'ldr-threshold',
-    label: 'Ngưỡng ánh sáng (LDR)',
-    min: 100,
-    max: 3500,
-    step: 50,
-    unit: '',
-    action: 'set_ldr_threshold',
-    stateKey: 'ldr_threshold',
-  }));
+  // LDR Threshold Picker
+  thresholdSection.appendChild(createThresholdPicker());
 
-  // Spacer
-  const sliderSpacer = document.createElement('div');
-  sliderSpacer.style.height = 'var(--space-lg)';
-  thresholdSection.appendChild(sliderSpacer);
 
-  // Radar Timeout Slider
-  thresholdSection.appendChild(createSliderControl({
-    id: 'radar-timeout',
-    label: 'Thời gian chờ Radar',
-    min: 1,
-    max: 60,
-    step: 1,
-    unit: 's',
-    action: 'set_radar_timeout',
-    stateKey: 'radar_timeout',
-  }));
 
   page.appendChild(thresholdSection);
 

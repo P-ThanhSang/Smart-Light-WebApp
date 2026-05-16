@@ -4,7 +4,6 @@ import { getState, setState, addLog, addAnalyticsPoint } from './state.js';
 
 let mockInterval = null;
 let ldrDirection = 1;
-let radarTimer = null;
 let uptimeCounter = 0;
 
 /**
@@ -43,11 +42,8 @@ export function startMockService() {
 
     // Record analytics
     const state = getState();
-    addAnalyticsPoint(state.ldr, state.light, state.radar);
+    addAnalyticsPoint(state.ldr, state.light);
   }, CONFIG.MOCK_UPDATE_INTERVAL);
-
-  // Radar toggle (random interval 5-15s)
-  scheduleRadarToggle();
 }
 
 /**
@@ -55,9 +51,7 @@ export function startMockService() {
  */
 export function stopMockService() {
   if (mockInterval) clearInterval(mockInterval);
-  if (radarTimer) clearTimeout(radarTimer);
   mockInterval = null;
-  radarTimer = null;
   console.log('🧪 Mock Service stopped');
 }
 
@@ -82,10 +76,6 @@ export function mockAction(action, value) {
 
     case 'set_ldr_threshold':
       setState({ ldr_threshold: value });
-      break;
-
-    case 'set_radar_timeout':
-      setState({ radar_timeout: value });
       break;
   }
 }
@@ -153,21 +143,6 @@ function updateWiFi() {
   setState({ wifi_rssi: Math.round(base + fluctuation) });
 }
 
-function scheduleRadarToggle() {
-  const delay = (Math.random() * 10 + 5) * 1000; // 5-15 seconds
-  radarTimer = setTimeout(() => {
-    const state = getState();
-    const newRadar = !state.radar;
-    setState({ radar: newRadar });
-
-    if (newRadar) {
-      addLog('radar', 'Phát hiện chuyển động!');
-    }
-
-    scheduleRadarToggle();
-  }, delay);
-}
-
 function autoModeLogic() {
   const state = getState();
   if (state.mode !== 'auto') return;
@@ -184,8 +159,8 @@ function autoModeLogic() {
       shouldLightOn = state.ldr < state.ldr_threshold;
       break;
     case 'night':
-      // Night: light on only when radar detects motion AND LDR < threshold
-      shouldLightOn = state.radar && state.ldr < state.ldr_threshold;
+      // Night: light on if LDR < threshold
+      shouldLightOn = state.ldr < state.ldr_threshold;
       break;
   }
 

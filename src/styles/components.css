@@ -1,5 +1,6 @@
 /* ============================================
    Smart Light PWA — Component Styles
+   Light Clean Theme
    ============================================ */
 
 /* --- Header --- */
@@ -12,35 +13,52 @@
   max-width: var(--max-width);
   height: var(--header-height);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-md);
-  background: rgba(10, 14, 39, 0.9);
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-md);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   z-index: var(--z-nav);
 }
 
-.app-header__title {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
+.app-header__row-top {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: space-between;
+  width: 100%;
+}
+
+.app-header__date {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.app-header__row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  width: 100%;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-top: 2px;
 }
 
 .app-header__right {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
 .app-header__time {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   font-variant-numeric: tabular-nums;
 }
 
@@ -49,12 +67,12 @@
   height: 8px;
   border-radius: 50%;
   background: var(--accent-green);
-  box-shadow: 0 0 8px var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
 }
 
 .connection-dot--disconnected {
   background: var(--accent-red);
-  box-shadow: 0 0 8px var(--accent-red);
+  box-shadow: 0 0 6px var(--accent-red);
 }
 
 /* --- Bottom Navigation Bar --- */
@@ -69,7 +87,7 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: rgba(10, 14, 39, 0.95);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-color);
@@ -103,7 +121,7 @@
 }
 
 .nav-bar__item--active .nav-bar__icon {
-  filter: drop-shadow(0 0 6px var(--accent-cyan-glow));
+  filter: drop-shadow(0 0 4px var(--accent-cyan-glow));
 }
 
 .nav-bar__icon {
@@ -114,6 +132,72 @@
 
 .nav-bar__label {
   letter-spacing: 0.02em;
+}
+
+/* --- Mode Cards (Auto / Manual) --- */
+.mode-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--space-md) var(--space-sm);
+  border-radius: var(--border-radius-lg);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-family);
+  box-shadow: var(--shadow-sm);
+}
+
+.mode-card:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--shadow-md);
+}
+
+.mode-card:active {
+  transform: scale(0.97);
+}
+
+.mode-card__icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.mode-card__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.mode-card__desc {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Active state */
+.mode-card--active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.mode-card--active .mode-card__title {
+  color: #fff;
+}
+
+.mode-card--active .mode-card__desc {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* --- Toggle Switch --- */
@@ -141,7 +225,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--text-secondary);
+  background: var(--text-muted);
   transition: transform var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
 }
 
@@ -211,6 +295,228 @@
   cursor: pointer;
   border: none;
   box-shadow: var(--shadow-glow-cyan);
+}
+
+/* --- Threshold Picker --- */
+.threshold-picker {
+  width: 100%;
+}
+
+.threshold-picker__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.threshold-picker__label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.threshold-picker__value {
+  font-size: var(--font-size-md);
+  color: var(--accent-cyan);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.threshold-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+.threshold-chip {
+  padding: 10px 4px;
+  border-radius: var(--border-radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+}
+
+.threshold-chip:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  background: var(--accent-cyan-dim);
+}
+
+.threshold-chip:active {
+  transform: scale(0.95);
+}
+
+.threshold-chip--active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.threshold-chip--active:hover {
+  background: var(--accent-cyan);
+  color: #fff;
+}
+
+.threshold-chip--custom {
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.threshold-chip--custom.threshold-chip--active {
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.15em;
+}
+
+/* Slider below chips */
+.threshold-picker__slider {
+  margin-top: var(--space-md);
+}
+
+/* --- Threshold Keypad Overlay --- */
+.threshold-keypad-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 49, 66, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+}
+
+.threshold-keypad-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.threshold-keypad-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-xl);
+  padding: var(--space-lg);
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  animation: scale-pop 0.25s ease forwards;
+}
+
+.threshold-keypad__header {
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.threshold-keypad__title {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.threshold-keypad__range {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.threshold-keypad__display {
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: 12px var(--space-md);
+  text-align: center;
+  margin-bottom: var(--space-md);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.threshold-keypad__input-text {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.threshold-keypad__cursor {
+  width: 2px;
+  height: 1.4em;
+  background: var(--accent-cyan);
+  border-radius: 1px;
+  animation: dot-blink 1s ease-in-out infinite;
+}
+
+.threshold-keypad__keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.threshold-keypad__key {
+  padding: 14px 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+}
+
+.threshold-keypad__key:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+}
+
+.threshold-keypad__key:active {
+  transform: scale(0.94);
+  background: var(--accent-cyan-dim);
+}
+
+.threshold-keypad__key--action {
+  color: var(--accent-cyan);
+  font-weight: var(--font-weight-bold);
+}
+
+.threshold-keypad__actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: stretch;
+}
+
+.threshold-keypad__actions .btn {
+  flex: 1;
+  text-align: center;
+}
+
+.threshold-keypad__error {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--accent-red);
+  min-height: 1.2em;
+  margin-top: var(--space-sm);
 }
 
 /* --- PIN Gate --- */
@@ -347,7 +653,7 @@
 .schedule-card__day--active {
   background: var(--accent-cyan-dim);
   color: var(--accent-cyan);
-  border-color: rgba(0, 245, 255, 0.2);
+  border-color: rgba(79, 195, 247, 0.25);
 }
 
 /* --- Chart Container --- */
@@ -376,7 +682,7 @@
   align-items: flex-start;
   gap: var(--space-md);
   padding: var(--space-sm) 0;
-  border-bottom: 1px solid rgba(0, 245, 255, 0.05);
+  border-bottom: 1px solid rgba(79, 195, 247, 0.08);
 }
 
 .log-entry__icon {
@@ -392,10 +698,6 @@
 
 .log-entry__icon--light {
   background: var(--accent-cyan-dim);
-}
-
-.log-entry__icon--radar {
-  background: var(--accent-amber-dim);
 }
 
 .log-entry__icon--mode {
@@ -471,7 +773,7 @@
   height: 52px;
   border-radius: 50%;
   background: var(--accent-cyan);
-  color: var(--bg-primary);
+  color: #fff;
   border: none;
   font-size: var(--font-size-xl);
   cursor: pointer;
@@ -486,7 +788,7 @@
 
 .fab:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+  box-shadow: 0 0 24px rgba(79, 195, 247, 0.45);
 }
 
 .fab:active {
@@ -523,7 +825,7 @@
 }
 
 .info-row + .info-row {
-  border-top: 1px solid rgba(0, 245, 255, 0.05);
+  border-top: 1px solid rgba(79, 195, 247, 0.08);
 }
 
 .info-row__label {
@@ -565,7 +867,7 @@
 }
 
 .btn--primary:hover {
-  background: rgba(0, 245, 255, 0.25);
+  background: rgba(79, 195, 247, 0.2);
 }
 
 .btn--danger {
@@ -626,10 +928,10 @@
   justify-content: center;
   padding: 6px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(145deg, rgba(30, 40, 80, 0.6), rgba(10, 14, 39, 0.8));
+  background: linear-gradient(145deg, rgba(230, 235, 245, 0.8), rgba(210, 218, 235, 0.6));
   box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 20px rgba(45, 49, 66, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .power-btn {
@@ -667,39 +969,39 @@
 
 /* --- GREEN State: Light is OFF, press to turn ON --- */
 .power-btn-ring--off {
-  background: linear-gradient(145deg, rgba(0, 255, 136, 0.12), rgba(0, 80, 40, 0.2));
+  background: linear-gradient(145deg, rgba(102, 187, 106, 0.15), rgba(102, 187, 106, 0.08));
   box-shadow:
-    0 0 25px rgba(0, 255, 136, 0.15),
-    0 0 50px rgba(0, 255, 136, 0.05),
-    inset 0 1px 0 rgba(0, 255, 136, 0.1);
+    0 0 20px rgba(102, 187, 106, 0.12),
+    0 0 40px rgba(102, 187, 106, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .power-btn--off {
-  background: radial-gradient(circle at 40% 35%, #00cc6a, #00a556 50%, #008946 100%);
+  background: radial-gradient(circle at 40% 35%, #7ecf82, #5cb860 50%, #43a047 100%);
   color: #fff;
   box-shadow:
-    0 6px 20px rgba(0, 200, 100, 0.3),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    0 6px 20px rgba(102, 187, 106, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .power-btn--off:hover {
   transform: scale(1.04);
   box-shadow:
-    0 8px 30px rgba(0, 255, 136, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.25),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    0 8px 30px rgba(102, 187, 106, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .power-btn--off:active {
   transform: scale(0.96);
   box-shadow:
-    0 2px 10px rgba(0, 200, 100, 0.3),
-    inset 0 2px 8px rgba(0, 0, 0, 0.4);
+    0 2px 10px rgba(102, 187, 106, 0.3),
+    inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .power-btn--off .power-icon {
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
 }
 
 .power-btn--off .power-btn__label {
@@ -708,40 +1010,40 @@
 
 /* --- RED State: Light is ON, press to turn OFF --- */
 .power-btn-ring--on {
-  background: linear-gradient(145deg, rgba(255, 71, 87, 0.15), rgba(180, 30, 40, 0.2));
+  background: linear-gradient(145deg, rgba(239, 83, 80, 0.12), rgba(239, 83, 80, 0.06));
   box-shadow:
-    0 0 30px rgba(255, 71, 87, 0.2),
-    0 0 60px rgba(255, 71, 87, 0.08),
-    inset 0 1px 0 rgba(255, 71, 87, 0.15);
+    0 0 25px rgba(239, 83, 80, 0.15),
+    0 0 50px rgba(239, 83, 80, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   animation: ring-pulse-red 2s ease-in-out infinite;
 }
 
 .power-btn--on {
-  background: radial-gradient(circle at 40% 35%, #ff6b7a, #e8434f 50%, #cc2936 100%);
+  background: radial-gradient(circle at 40% 35%, #ff7c7c, #ef5350 50%, #d32f2f 100%);
   color: #fff;
   box-shadow:
-    0 6px 25px rgba(255, 71, 87, 0.4),
-    inset 0 2px 4px rgba(255, 255, 255, 0.2),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    0 6px 25px rgba(239, 83, 80, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .power-btn--on:hover {
   transform: scale(1.04);
   box-shadow:
-    0 8px 35px rgba(255, 71, 87, 0.5),
-    inset 0 2px 4px rgba(255, 255, 255, 0.25),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+    0 8px 35px rgba(239, 83, 80, 0.45),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .power-btn--on:active {
   transform: scale(0.96);
   box-shadow:
-    0 2px 10px rgba(255, 71, 87, 0.3),
-    inset 0 2px 8px rgba(0, 0, 0, 0.4);
+    0 2px 10px rgba(239, 83, 80, 0.3),
+    inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .power-btn--on .power-icon {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
 }
 
 .power-btn--on .power-btn__label {
@@ -750,18 +1052,18 @@
 
 /* --- Disabled State (Auto Mode) --- */
 .power-btn-ring--disabled {
-  background: linear-gradient(145deg, rgba(30, 40, 80, 0.4), rgba(10, 14, 39, 0.6));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, rgba(200, 210, 230, 0.5), rgba(180, 190, 215, 0.4));
+  box-shadow: 0 4px 12px rgba(45, 49, 66, 0.06);
 }
 
 .power-btn--disabled {
-  background: radial-gradient(circle at 40% 35%, #2a3050, #1e2445 50%, #161b35 100%);
+  background: radial-gradient(circle at 40% 35%, #c8d1e0, #b0bcd4 50%, #98a5be 100%);
   color: var(--text-muted);
   cursor: not-allowed;
   opacity: 0.5;
   box-shadow:
-    inset 0 2px 4px rgba(255, 255, 255, 0.03),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 2px 4px rgba(255, 255, 255, 0.2),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .power-btn--disabled:hover {
@@ -780,14 +1082,14 @@
 @keyframes ring-pulse-red {
   0%, 100% {
     box-shadow:
-      0 0 30px rgba(255, 71, 87, 0.2),
-      0 0 60px rgba(255, 71, 87, 0.08),
-      inset 0 1px 0 rgba(255, 71, 87, 0.15);
+      0 0 25px rgba(239, 83, 80, 0.15),
+      0 0 50px rgba(239, 83, 80, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
   50% {
     box-shadow:
-      0 0 40px rgba(255, 71, 87, 0.3),
-      0 0 80px rgba(255, 71, 87, 0.12),
-      inset 0 1px 0 rgba(255, 71, 87, 0.2);
+      0 0 35px rgba(239, 83, 80, 0.22),
+      0 0 65px rgba(239, 83, 80, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
   }
 }

@@ -3,7 +3,6 @@ import { createTimeBadge } from '../components/time-badge.js';
 import { createLightButton } from '../components/light-button.js';
 import { createModeToggle } from '../components/mode-toggle.js';
 import { createLdrGauge } from '../components/ldr-gauge.js';
-import { createRadarIndicator } from '../components/radar-indicator.js';
 
 export function createDashboardPage() {
   const page = document.createElement('div');
@@ -36,9 +35,6 @@ export function createDashboardPage() {
 
   // LDR Gauge
   sensorsRow.appendChild(createLdrGauge());
-
-  // Radar Indicator
-  sensorsRow.appendChild(createRadarIndicator());
 
   page.appendChild(sensorsRow);
 

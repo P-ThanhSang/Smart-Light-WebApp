@@ -26,7 +26,6 @@ export function createLogsPage() {
   const filters = [
     { id: 'all', label: 'Tất cả' },
     { id: 'light', label: '💡 Đèn' },
-    { id: 'radar', label: '📡 Radar' },
     { id: 'mode', label: '🔄 Chế độ' },
     { id: 'system', label: '⚙️ Hệ thống' },
   ];

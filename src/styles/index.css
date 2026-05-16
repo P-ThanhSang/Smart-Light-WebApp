@@ -1,34 +1,34 @@
 /* ============================================
    Smart Light PWA — Design System
-   Dark Futuristic Theme
+   Light Clean Theme (Pastel & Airy)
    ============================================ */
 
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
   /* Background Colors */
-  --bg-primary: #0a0e27;
-  --bg-secondary: #0f1435;
-  --bg-card: rgba(15, 20, 53, 0.85);
-  --bg-card-hover: rgba(20, 28, 70, 0.9);
-  --bg-overlay: rgba(10, 14, 39, 0.95);
+  --bg-primary: #f0f2f8;
+  --bg-secondary: #e4e8f1;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-overlay: rgba(240, 242, 248, 0.95);
 
   /* Accent Colors */
-  --accent-cyan: #00f5ff;
-  --accent-cyan-dim: rgba(0, 245, 255, 0.15);
-  --accent-cyan-glow: rgba(0, 245, 255, 0.4);
-  --accent-green: #00ff88;
-  --accent-green-dim: rgba(0, 255, 136, 0.15);
-  --accent-red: #ff4757;
-  --accent-red-dim: rgba(255, 71, 87, 0.15);
-  --accent-amber: #ffb800;
-  --accent-amber-dim: rgba(255, 184, 0, 0.15);
-  --accent-purple: #a855f7;
-  --accent-purple-dim: rgba(168, 85, 247, 0.15);
+  --accent-cyan: #4fc3f7;
+  --accent-cyan-dim: rgba(79, 195, 247, 0.12);
+  --accent-cyan-glow: rgba(79, 195, 247, 0.35);
+  --accent-green: #66bb6a;
+  --accent-green-dim: rgba(102, 187, 106, 0.12);
+  --accent-red: #ef5350;
+  --accent-red-dim: rgba(239, 83, 80, 0.10);
+  --accent-amber: #ffa726;
+  --accent-amber-dim: rgba(255, 167, 38, 0.12);
+  --accent-purple: #ab47bc;
+  --accent-purple-dim: rgba(171, 71, 188, 0.10);
 
   /* Text Colors */
-  --text-primary: #e2e8f0;
-  --text-secondary: #8892b0;
-  --text-muted: #4a5568;
+  --text-primary: #2d3142;
+  --text-secondary: #6b7394;
+  --text-muted: #a0a8c0;
   --text-accent: var(--accent-cyan);
 
   /* Typography */
@@ -55,7 +55,7 @@
   --space-2xl: 48px;
 
   /* Border */
-  --border-color: rgba(0, 245, 255, 0.1);
+  --border-color: rgba(79, 195, 247, 0.18);
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
@@ -63,12 +63,12 @@
   --border-radius-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow-cyan: 0 0 20px rgba(0, 245, 255, 0.3);
-  --shadow-glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
-  --shadow-glow-red: 0 0 20px rgba(255, 71, 87, 0.3);
+  --shadow-sm: 0 2px 8px rgba(45, 49, 66, 0.06);
+  --shadow-md: 0 4px 16px rgba(45, 49, 66, 0.08);
+  --shadow-lg: 0 8px 32px rgba(45, 49, 66, 0.12);
+  --shadow-glow-cyan: 0 0 16px rgba(79, 195, 247, 0.25);
+  --shadow-glow-green: 0 0 16px rgba(102, 187, 106, 0.25);
+  --shadow-glow-red: 0 0 16px rgba(239, 83, 80, 0.25);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -83,7 +83,7 @@
 
   /* Layout */
   --nav-height: 64px;
-  --header-height: 56px;
+  --header-height: 80px;
   --max-width: 480px;
 }
 
@@ -136,8 +136,8 @@ body {
 /* --- Glassmorphism Card --- */
 .glass-card {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--space-lg);
@@ -189,14 +189,14 @@ body {
   background: var(--accent-cyan-glow);
 }
 
-/* --- Background Grid Pattern --- */
+/* --- Background Subtle Pattern --- */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(circle at 25% 25%, rgba(0, 245, 255, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 25% 25%, rgba(79, 195, 247, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(171, 71, 188, 0.04) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }

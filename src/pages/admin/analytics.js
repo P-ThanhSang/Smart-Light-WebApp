@@ -4,7 +4,6 @@ import { fetchSensorHistory } from '../../services/supabase-service.js';
 import { CONFIG } from '../../config.js';
 import { createLdrChart } from '../../components/admin/ldr-chart.js';
 import { createLightUsageChart } from '../../components/admin/light-usage-chart.js';
-import { createRadarChart } from '../../components/admin/radar-chart.js';
 
 export function createAnalyticsPage() {
   const page = document.createElement('div');
@@ -30,11 +29,9 @@ export function createAnalyticsPage() {
 
   const ldrChart = createLdrChart();
   const lightUsageChart = createLightUsageChart();
-  const radarChart = createRadarChart();
 
   chartsContainer.appendChild(ldrChart);
   chartsContainer.appendChild(lightUsageChart);
-  chartsContainer.appendChild(radarChart);
   page.appendChild(chartsContainer);
 
   // --- Load data ---
@@ -43,20 +40,17 @@ export function createAnalyticsPage() {
     subscribe((state) => {
       ldrChart.updateData(state.analytics.ldr_history);
       lightUsageChart.updateData(state.analytics.light_usage);
-      radarChart.updateData(state.analytics.radar_events);
     });
 
     // Initial render
     const state = getState();
     ldrChart.updateData(state.analytics.ldr_history);
     lightUsageChart.updateData(state.analytics.light_usage);
-    radarChart.updateData(state.analytics.radar_events);
   } else {
     // Supabase mode: fetch sensor history from cloud
     fetchSensorHistory(CONFIG.MAX_ANALYTICS_POINTS).then((analytics) => {
       ldrChart.updateData(analytics.ldr_history);
       lightUsageChart.updateData(analytics.light_usage);
-      radarChart.updateData(analytics.radar_events);
     });
 
     // Also subscribe for any realtime sensor_readings inserts
@@ -64,7 +58,6 @@ export function createAnalyticsPage() {
       if (state.analytics) {
         ldrChart.updateData(state.analytics.ldr_history);
         lightUsageChart.updateData(state.analytics.light_usage);
-        radarChart.updateData(state.analytics.radar_events);
       }
     });
   }

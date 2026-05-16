@@ -92,7 +92,6 @@ export function createSystemPage() {
     const state = getState();
     const config = {
       ldr_threshold: state.ldr_threshold,
-      radar_timeout: state.radar_timeout,
       schedules: state.schedules,
       mode: state.mode,
       exported_at: new Date().toISOString(),
@@ -138,7 +137,6 @@ ${JSON.stringify(config, null, 2)}
           import('../../services/state.js').then(({ setState }) => {
             setState({
               ldr_threshold: config.ldr_threshold,
-              radar_timeout: config.radar_timeout,
               schedules: config.schedules || [],
               mode: config.mode || 'auto',
             });

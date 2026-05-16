@@ -92,12 +92,10 @@ export async function startSupabaseService() {
             light: row.light,
             ldr: row.ldr,
             ldr_percent: row.ldr_percent,
-            radar: row.radar,
             hour: row.hour,
             minute: row.minute,
             time_period: row.time_period,
             ldr_threshold: row.ldr_threshold,
-            radar_timeout: row.radar_timeout,
             uptime: row.uptime,
             free_memory: row.free_memory,
             firmware: row.firmware,
@@ -225,12 +223,10 @@ async function fetchDeviceState() {
         light: data.light,
         ldr: data.ldr,
         ldr_percent: data.ldr_percent,
-        radar: data.radar,
         hour: data.hour,
         minute: data.minute,
         time_period: data.time_period,
         ldr_threshold: data.ldr_threshold,
-        radar_timeout: data.radar_timeout,
         uptime: data.uptime,
         free_memory: data.free_memory,
         firmware: data.firmware,
@@ -290,7 +286,7 @@ async function fetchSchedules() {
  * Send a command to ESP32 by inserting into commands table
  * ESP32 polls this table and executes pending commands
  *
- * @param {string} action - 'toggle_light', 'set_mode', 'set_ldr_threshold', 'set_radar_timeout'
+ * @param {string} action - 'toggle_light', 'set_mode', 'set_ldr_threshold'
  * @param {object} value - { mode: 'manual' } or { value: 1500 }
  */
 export async function sendCommand(action, value = {}) {
@@ -329,8 +325,6 @@ export async function sendCommand(action, value = {}) {
     const stateUpdate = {};
     if (action === 'set_ldr_threshold' && value.value != null) {
       stateUpdate.ldr_threshold = value.value;
-    } else if (action === 'set_radar_timeout' && value.value != null) {
-      stateUpdate.radar_timeout = value.value;
     }
 
     if (Object.keys(stateUpdate).length > 0) {
@@ -577,7 +571,7 @@ export async function fetchSensorHistory(limit = 200) {
 
     if (error) {
       console.error('[Supabase] Fetch sensor history error:', error);
-      return { ldr_history: [], light_usage: [], radar_events: [] };
+      return { ldr_history: [], light_usage: [] };
     }
 
     // Reverse to chronological order
@@ -594,16 +588,6 @@ export async function fetchSensorHistory(limit = 200) {
       timestamp: new Date(r.created_at).getTime(),
     }));
 
-    const radar_events = readings.map((r) => ({
-      time: new Date(r.created_at).toLocaleTimeString('vi-VN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      }),
-      detected: r.radar,
-      timestamp: new Date(r.created_at).getTime(),
-    }));
-
     // Aggregate light usage per hour
     const hourMap = {};
     readings.forEach((r) => {
@@ -613,9 +597,9 @@ export async function fetchSensorHistory(limit = 200) {
     });
     const light_usage = Object.values(hourMap);
 
-    return { ldr_history, light_usage, radar_events };
+    return { ldr_history, light_usage };
   } catch (err) {
     console.error('[Supabase] Fetch sensor history failed:', err);
-    return { ldr_history: [], light_usage: [], radar_events: [] };
+    return { ldr_history: [], light_usage: [] };
   }
 }
