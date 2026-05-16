@@ -4,7 +4,7 @@ import { subscribe, getState } from '../services/state.js';
 
 const MAX_LDR = 4095;
 const DEMO_HALF_CYCLE_MS = 5000;
-const STALE_TIMEOUT_MS = 6000; // No data for 6s → show demo
+const STALE_TIMEOUT_MS = 3000; // No data for 3s → show demo
 
 // Color palette: neon/fluorescent — bright and vibrant
 const BAND_COLORS = [
@@ -145,7 +145,7 @@ export function createLdrGauge() {
       hardwareActive = false;
       startDemo();
     }
-  }, 2000);
+  }, 1000);
 
   // --- Subscribe: detect fresh hardware data via _lastSensorUpdate timestamp ---
   subscribe((state) => {
